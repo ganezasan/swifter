@@ -34,20 +34,20 @@ jobs:
       xcode: 10.2.0
     steps:
       - checkout
-      - run: 
+      - run:
          name: Create Test Result Directory
          command: mkdir -p $TEST_REPORTS
-      - run: 
+      - run:
          name: Run Unit Test - macOS
          command: |
             cd XCode
             set -o pipefail && xcodebuild test -scheme SwifterMac -sdk macosx -destination "arch=x86_64" | xcpretty -c -r html --output $TEST_REPORTS/macOS.html
-      - run: 
+      - run:
          name: Run Unit Test - iOS
          command: |
             cd XCode
             set -o pipefail && xcodebuild test -scheme SwifteriOS -sdk iphonesimulator -destination "name=iPhone 8" | xcpretty -c -r html --output $TEST_REPORTS/iOS.html
-      - run: 
+      - run:
          name: Run Unit Test - tvOS
          command: |
             cd XCode
@@ -61,16 +61,21 @@ jobs:
           path: /tmp/test-results
 
   Test Linux Platform:
-    machine: 
-      docker_layer_caching: true
+    # machine:
+    #   docker_layer_caching: true
+    docker:
+      - image: swift:5.0
+    resource_class: large
     steps:
       - checkout
       - run:
-          name: Build Docker Image
-          command: docker build --tag swift5.0 .
-      - run:
           name: Run Unit Tests
-          command: docker run --rm swift5.0
+          command: swift test
+          # name: Build Docker Image
+      #     command: docker build --tag swift5.0 .
+      # - run:
+      #     name: Run Unit Tests
+      #     command: docker run --rm swift5.0
 
 workflows:
   version: 2
@@ -80,6 +85,6 @@ workflows:
       - Test Linux Platform:
           requires:
             - Danger
-      - Test OS X Platform:
-          requires:
-            - Danger
+      # - Test OS X Platform:
+      #     requires:
+      #       - Danger
